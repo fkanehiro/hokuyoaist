@@ -88,6 +88,7 @@ class HOKUYOAIST_EXPORT BaseError : public std::exception
 
         /** Formatted description of the error. */
         std::stringstream ss;
+        std::string ss_str;
         /** String representation of the error. */
         char error_type_[32];
 }; //class BaseError
