@@ -377,30 +377,30 @@ BaseError::BaseError(BaseError const& rhs)
 }
 
 
-const char* BaseError::what() throw()
+std::string BaseError::what () throw ()
 {
-    ss << error_type_ << " (" << desc_code_ << "): " <<
+    std::stringstream ss;
+    format (ss);
+    return ss.str ();
+}
+
+std::ostream& BaseError::format(std::ostream& ostr) const throw()
+{
+    return ostr << error_type_ << " (" << desc_code_ << "): " <<
         desc_code_to_string(desc_code_);
-    ss_str = ss.str();
-    return ss_str.c_str();;
 }
 
 
-const char* BaudrateError::what() throw()
+std::ostream& BaudrateError::format(std::ostream& ostr) const throw()
 {
-    RuntimeError::what();
-    ss << baud_;
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return RuntimeError::format (ostr) << baud_;
 }
 
 
-const char* ChecksumError::what() throw()
+std::ostream& ChecksumError::format(std::ostream& ostr) const throw()
 {
-    ProtocolError::what();
-    ss << "expected " << expected_ << ", calculated " << calculated_;
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return ProtocolError::format (ostr)
+        << "expected " << expected_ << ", calculated " << calculated_;
 }
 
 
@@ -418,12 +418,9 @@ UnknownLineError::UnknownLineError(UnknownLineError const& rhs)
 }
 
 
-const char* UnknownLineError::what() throw()
+std::ostream& UnknownLineError::format(std::ostream& ostr) const throw()
 {
-    ProtocolError::what();
-    ss << line_;
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return ProtocolError::format(ostr) << line_;
 }
 
 
@@ -443,72 +440,62 @@ ParseError::ParseError(ParseError const& rhs)
 }
 
 
-const char* ParseError::what() throw()
+std::ostream& ParseError::format(std::ostream& ostr) const throw()
 {
-    ProtocolError::what();
-    ss << "Line type: " << type_ << ". Line: " << line_;
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return ProtocolError::format(ostr)
+        << "Line type: " << type_ << ". Line: " << line_;
 }
 
 
-const char* ResponseError::what() throw()
+std::ostream& ResponseError::format(std::ostream& ostr) const throw()
 {
-    ProtocolError::what();
-    ss << " Command: " << cmd_[0] << cmd_[1];
-    ss << " Error : (" << error_[0] << error_[1] << ") " <<
-        scip2_error_to_string(error_, cmd_);
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return ProtocolError::format(ostr)
+        << " Command: " << cmd_[0] << cmd_[1]
+        << " Error : (" << error_[0] << error_[1]
+        << ") " << scip2_error_to_string(error_, cmd_);
 }
 
 
-const char* Scip1ResponseError::what() throw()
+std::ostream& Scip1ResponseError::format(std::ostream& ostr) const throw()
 {
-    ProtocolError::what();
-    ss << " Command: " << cmd_;
-    ss << " Error : " << error_;
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return ProtocolError::format(ostr)
+        << " Command: " << cmd_ << " Error : " << error_;
 }
 
 
-const char* CommandEchoError::what() throw()
+std::ostream& CommandEchoError::format(std::ostream& ostr) const throw()
 {
-    ProtocolError::what();
-    ss << " Command: " << cmd_[0] << cmd_[1];
-    ss << " Received echo: " << echo_[0] << echo_[1];
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return ProtocolError::format(ostr)
+        << " Command: " << cmd_[0] << cmd_[1]
+        << " Received echo: " << echo_[0] << echo_[1];
 }
 
 
-const char* ParamEchoError::what() throw()
+std::ostream& ParamEchoError::format(std::ostream& ostr) const throw()
 {
-    ProtocolError::what();
-    ss << " Command: " << cmd_[0] << cmd_[1];
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return ProtocolError::format(ostr)
+        << " Command: " << cmd_[0] << cmd_[1];
 }
 
 
-const char* InsufficientBytesError::what() throw()
+std::ostream& InsufficientBytesError::format(std::ostream& ostr) const throw()
 {
-    ProtocolError::what();
-    ss << " Number of bytes: " << num_;
-    ss << " Line length: " << line_length_;
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return ProtocolError::format(ostr)
+        << " Number of bytes: " << num_
+        << " Line length: " << line_length_;
 }
 
 
-const char* LineLengthError::what() throw()
+std::ostream& LineLengthError::format(std::ostream& ostr) const throw()
 {
-    ProtocolError::what();
-    ss << " Received length: " << length_;
-    ss << " Expected line length: " << expected_;
-    ss_str = ss.str();
-    return ss_str.c_str();;
+    return ProtocolError::format(ostr)
+        << " Received length: " << length_
+        << " Expected line length: " << expected_;
+}
+
+std::ostream& operator << (std::ostream& ostr, const BaseError& e)
+{
+    return e.format (ostr);
 }
 
 }; // namespace hokuyoaist
