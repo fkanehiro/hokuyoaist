@@ -44,7 +44,7 @@ class BaseErrorWrap
             return BaseError::error_type();
         }
 
-        const char* what() throw()
+        std::string what() throw()
         {
             if (boost::python::override f = get_override("what"))
             {
@@ -52,7 +52,7 @@ class BaseErrorWrap
             }
             return BaseError::what();
         }
-        const char* default_what() throw()
+        std::string default_what() throw()
         {
             return BaseError::what();
         }
